@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <math.h>
 
-// The main structure that will store the array and the dimension, shape and size of the array
 typedef struct ArrStruct
 {
     long int *array;
@@ -11,9 +10,12 @@ typedef struct ArrStruct
     unsigned int size;
 } Array;
 
-// Create a new array of given dimention and shape and return the address of the array structure
-// If there is not enough memory then it will return NULL
-Array *create_array(unsigned int size)
+int isany(Array *array, long int val);
+int isall(Array *array, long int val);
+int isequal(Array *array1, Array *array2);
+int isequal_shape(Array *array1, Array *array2);
+
+Array *array_with_size(unsigned int size)
 {
     Array *array = (Array *)malloc(sizeof(Array));
     if (array == NULL)
@@ -35,31 +37,9 @@ Array *create_array(unsigned int size)
     return array;
 }
 
-Array *create_array(unsigned int dim, unsigned int size)
+Array *array_with_dim_shape(unsigned int dim, unsigned int *shape)
 {
-    unsigned int shape[1] = {size};
-    Array *array = (Array *)malloc(sizeof(Array));
-    if (array == NULL)
-    {
-        return NULL;
-    }
-
-    array->array = (long int *)malloc(size * sizeof(long int));
-    if (array->array == NULL)
-    {
-        return NULL;
-    }
-
-    array->dim = 1;
-    array->shape = shape;
-    array->size = size;
-
-    return array;
-}
-
-Array *create_array(unsigned int dim, unsigned int *shape)
-{
-    unsigned int size = sizeof(long int);
+    unsigned int size = 1;
     register unsigned int i;
 
     for (i = 0; i < dim; i++)
@@ -72,7 +52,7 @@ Array *create_array(unsigned int dim, unsigned int *shape)
     {
         return NULL;
     }
-    array->array = (long int *)malloc(size);
+    array->array = (long int *)malloc(size * sizeof(long int));
     if (array->array == NULL)
     {
         return NULL;
@@ -80,16 +60,19 @@ Array *create_array(unsigned int dim, unsigned int *shape)
 
     array->dim = dim;
     array->shape = shape;
-    array->size = size / 8;
+    array->size = size;
 
     return array;
 }
 
-// Create a new zero matrix of given dimensions and shape
-// If there is not enough memory then it will return NULL
-Array *zeros(unsigned int size)
+Array *zeros_with_size(unsigned int size)
 {
-    Array *array = create_array(size);
+    Array *array = array_with_size(size);
+
+    if (array == NULL)
+    {
+        return NULL;
+    }
 
     register unsigned int i;
     for (i = 0; i < size; i++)
@@ -100,14 +83,9 @@ Array *zeros(unsigned int size)
     return array;
 }
 
-Array *zeros(unsigned int dim, unsigned int size)
+Array *zeros_with_dim_shape(unsigned int dim, unsigned int *shape)
 {
-    if (size % dim != 0)
-    {
-        return NULL;
-    }
-
-    Array *array = create_array(dim, size);
+    Array *array = array_with_dim_shape(dim, shape);
 
     if (array == NULL)
     {
@@ -124,30 +102,14 @@ Array *zeros(unsigned int dim, unsigned int size)
     return array;
 }
 
-Array *zeros(unsigned int dim, unsigned int *shape)
+Array *ones_with_size(unsigned int size)
 {
-    Array *array = create_array(dim, shape);
+    Array *array = array_with_size(size);
 
     if (array == NULL)
     {
         return NULL;
     }
-
-    register unsigned int i;
-
-    for (i = 0; i < array->size; i++)
-    {
-        *(array->array + i) = 0;
-    }
-
-    return array;
-}
-
-// Create a new matrix will all values 1 of given dimensions and shape
-// If there is not enough memory then it will return NULL
-Array *ones(unsigned int size)
-{
-    Array *array = create_array(size);
 
     register unsigned int i;
     for (i = 0; i < size; i++)
@@ -158,28 +120,9 @@ Array *ones(unsigned int size)
     return array;
 }
 
-Array *ones(unsigned int dim, unsigned int size)
+Array *ones_with_dim_shape(unsigned int dim, unsigned int *shape)
 {
-    Array *array = create_array(dim, size);
-
-    if (array == NULL)
-    {
-        return NULL;
-    }
-
-    register unsigned int i;
-
-    for (i = 0; i < array->size; i++)
-    {
-        *(array->array + i) = 0;
-    }
-
-    return array;
-}
-
-Array *ones(unsigned int dim, unsigned int *shape)
-{
-    Array *array = create_array(dim, shape);
+    Array *array = array_with_dim_shape(dim, shape);
 
     if (array == NULL)
     {
@@ -196,13 +139,10 @@ Array *ones(unsigned int dim, unsigned int *shape)
     return array;
 }
 
-// Create a new identity matrix of the given size. It will always be a square matrix and
-// the dimensions will always 2D
-// If there is not enough memory then it will return NULL
 Array *identity_matrix(unsigned int size)
 {
     unsigned int shape[] = {size, size};
-    Array *array = create_array(2, shape);
+    Array *array = array_with_dim_shape(2, shape);
 
     if (array == NULL)
     {
@@ -215,24 +155,29 @@ Array *identity_matrix(unsigned int size)
     {
         for (j = 0; j < size; j++)
         {
-            *(array->array + i * size + j) = 0;
+            if (i == j)
+            {
+                *(array->array + i * size + i) = 1;
+            }
+            else
+            {
+                *(array->array + i * size + j) = 0;
+            }
         }
-    }
-
-    for (i = 0; i < size; i++)
-    {
-        *(array->array + i * size + i) = 1;
     }
 
     return array;
 }
 
-// Create a new matrix with random values range between the given low and high
-// of the given dimension and shape
-// If there is not enough memory then it will return NULL
-Array *randint(int low, int high, int dim, int *shape)
+Array *randint_with_size(int low, int high, unsigned int size)
 {
-    Array *array = create_array(dim, shape);
+    Array *array = array_with_size(size);
+
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
     register unsigned int i;
 
     for (i = 0; i < array->size; i++)
@@ -243,11 +188,53 @@ Array *randint(int low, int high, int dim, int *shape)
     return array;
 }
 
-// Create a new matrix of the given dimension and shape
-// If there is not enough memory then it will return NULL
-Array *random(int dim, int *shape)
+Array *randint_with_dim_shape(int low, int high, unsigned int dim, unsigned int *shape)
 {
-    Array *array = create_array(dim, shape);
+    Array *array = array_with_dim_shape(dim, shape);
+
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    register unsigned int i;
+
+    for (i = 0; i < array->size; i++)
+    {
+        *(array->array + i) = (long int)rand() % (high - low + 1) + low;
+    }
+
+    return array;
+}
+
+Array *random_with_size(unsigned int size)
+{
+    Array *array = array_with_size(size);
+
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    register unsigned int i;
+
+    for (i = 0; i < array->size; i++)
+    {
+        *(array->array + i) = (long int)rand();
+    }
+
+    return array;
+}
+
+Array *random_with_dim_shape(unsigned int dim, unsigned int *shape)
+{
+    Array *array = array_with_dim_shape(dim, shape);
+
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
     register unsigned int i;
 
     for (i = 0; i < array->size; i++)
@@ -260,19 +247,27 @@ Array *random(int dim, int *shape)
 
 void show_array(Array *array)
 {
-    register unsigned int i;
-
-    for (i = 0; i < array->size; i++)
+    if (array != NULL)
     {
-        printf("%d ", *(array->array + i));
+        register unsigned int i;
+
+        for (i = 0; i < array->size; i++)
+        {
+            printf("%d ", *(array->array + i));
+        }
+        printf("\n");
     }
-    printf("\n");
 }
 
 Array *add_value(Array *array, int val)
 {
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
     register unsigned int i;
-    Array *new_array = create_array(array->dim, array->shape);
+    Array *new_array = array_with_dim_shape(array->dim, array->shape);
 
     for (i = 0; i < array->size; i++)
     {
@@ -282,10 +277,32 @@ Array *add_value(Array *array, int val)
     return new_array;
 }
 
+int add_value_inplace(Array *array, int val)
+{
+    if (array == NULL)
+    {
+        return -99;
+    }
+
+    register unsigned int i;
+
+    for (i = 0; i < array->size; i++)
+    {
+        *(array->array + i) = *(array->array + i) + val;
+    }
+
+    return 1;
+}
+
 Array *sub_value(Array *array, int val)
 {
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
     register unsigned int i;
-    Array *new_array = create_array(array->dim, array->shape);
+    Array *new_array = array_with_dim_shape(array->dim, array->shape);
 
     for (i = 0; i < array->size; i++)
     {
@@ -295,10 +312,32 @@ Array *sub_value(Array *array, int val)
     return new_array;
 }
 
+int sub_value_inplace(Array *array, int val)
+{
+    if (array == NULL)
+    {
+        return -99;
+    }
+
+    register unsigned int i;
+
+    for (i = 0; i < array->size; i++)
+    {
+        *(array->array + i) = *(array->array + i) - val;
+    }
+
+    return 1;
+}
+
 Array *mul_value(Array *array, int val)
 {
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
     register unsigned int i;
-    Array *new_array = create_array(array->dim, array->shape);
+    Array *new_array = array_with_dim_shape(array->dim, array->shape);
 
     for (i = 0; i < array->size; i++)
     {
@@ -308,10 +347,32 @@ Array *mul_value(Array *array, int val)
     return new_array;
 }
 
+int mul_value_inplace(Array *array, int val)
+{
+    if (array == NULL)
+    {
+        return -99;
+    }
+
+    register unsigned int i;
+
+    for (i = 0; i < array->size; i++)
+    {
+        *(array->array + i) = *(array->array + i) * val;
+    }
+
+    return 1;
+}
+
 Array *div_value(Array *array, int val)
 {
+    if (array == NULL || val == 0)
+    {
+        return NULL;
+    }
+
     register unsigned int i;
-    Array *new_array = create_array(array->dim, array->shape);
+    Array *new_array = array_with_dim_shape(array->dim, array->shape);
 
     for (i = 0; i < array->size; i++)
     {
@@ -321,127 +382,279 @@ Array *div_value(Array *array, int val)
     return new_array;
 }
 
+int div_value_inplace(Array *array, int val)
+{
+    if (array == NULL)
+    {
+        return -99;
+    }
+    else if (val == 0)
+    {
+        return 0;
+    }
+
+    register unsigned int i;
+
+    for (i = 0; i < array->size; i++)
+    {
+        *(array->array + i) = *(array->array + i) / val;
+    }
+
+    return 1;
+}
+
 Array *add_array(Array *array1, Array *array2)
 {
-    if (array1->dim == array2->dim)
+    if (array1 == NULL || array2 == NULL || array1->dim != array2->dim)
     {
-        register unsigned int i;
-        register unsigned short int flag = 1;
+        return NULL;
+    }
 
-        for (i = 0; i < array1->dim; i++)
-        {
-            if (*(array1->shape + i) != *(array2->shape + i))
-            {
-                flag = 0;
-                break;
-            }
-        }
+    register unsigned int i;
 
-        if (flag)
+    for (i = 0; i < array1->dim; i++)
+    {
+        if (*(array1->shape + i) != *(array2->shape + i))
         {
-            Array *new_array = create_array(array1->dim, array1->shape);
-            for (i = 0; i < array1->size; i++)
-            {
-                (*(new_array->array + i)) = (*(array1->array + i)) + (*(array2->array + i));
-            }
-            return new_array;
+            return NULL;
         }
     }
-    return NULL;
+
+    Array *new_array = array_with_dim_shape(array1->dim, array1->shape);
+
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    for (i = 0; i < array1->size; i++)
+    {
+        (*(new_array->array + i)) = (*(array1->array + i)) + (*(array2->array + i));
+    }
+    return new_array;
+}
+
+int add_array_inplace(Array *array1, Array *array2)
+{
+    if (array1 == NULL || array2 == NULL)
+    {
+        return -99;
+    }
+    else if (array1->dim != array2->dim)
+    {
+        return 0;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array1->dim; i++)
+    {
+        if (*(array1->shape + i) != *(array2->shape + i))
+        {
+            return 0;
+        }
+    }
+
+    for (i = 0; i < array1->size; i++)
+    {
+        (*(array1->array + i)) = (*(array1->array + i)) + (*(array2->array + i));
+    }
+    return 1;
 }
 
 Array *sub_array(Array *array1, Array *array2)
 {
-    if (array1->dim == array2->dim)
+    if (array1 == NULL || array2 == NULL || array1->dim != array2->dim)
     {
-        register unsigned int i;
-        register unsigned short int flag = 1;
+        return NULL;
+    }
 
-        for (i = 0; i < array1->dim; i++)
-        {
-            if ((*(array1->shape + i)) != (*(array2->shape + i)))
-            {
-                flag = 0;
-                break;
-            }
-        }
+    register unsigned int i;
 
-        if (flag)
+    for (i = 0; i < array1->dim; i++)
+    {
+        if (*(array1->shape + i) != *(array2->shape + i))
         {
-            Array *new_array = create_array(array1->dim, array1->shape);
-            for (i = 0; i < array1->size; i++)
-            {
-                (*(new_array->array + i)) = (*(array1->array + i)) - (*(array2->array + i));
-            }
-            return new_array;
+            return NULL;
         }
     }
-    return NULL;
+
+    Array *new_array = array_with_dim_shape(array1->dim, array1->shape);
+
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    for (i = 0; i < array1->size; i++)
+    {
+        (*(new_array->array + i)) = (*(array1->array + i)) - (*(array2->array + i));
+    }
+    return new_array;
+}
+
+int sub_array_inplace(Array *array1, Array *array2)
+{
+    if (array1 == NULL || array2 == NULL)
+    {
+        return -99;
+    }
+    else if (array1->dim != array2->dim)
+    {
+        return 0;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array1->dim; i++)
+    {
+        if (*(array1->shape + i) != *(array2->shape + i))
+        {
+            return 0;
+        }
+    }
+
+    for (i = 0; i < array1->size; i++)
+    {
+        (*(array1->array + i)) = (*(array1->array + i)) - (*(array2->array + i));
+    }
+    return 1;
 }
 
 Array *mul_array(Array *array1, Array *array2)
 {
-    if (array1->dim == array2->dim)
+    if (array1 == NULL || array2 == NULL || array1->dim != array2->dim)
     {
-        register unsigned int i;
-        register unsigned short int flag = 1;
+        return NULL;
+    }
 
-        for (i = 0; i < array1->dim; i++)
-        {
-            if (*(array1->shape + i) != *(array2->shape + i))
-            {
-                flag = 0;
-                break;
-            }
-        }
+    register unsigned int i;
 
-        if (flag)
+    for (i = 0; i < array1->dim; i++)
+    {
+        if (*(array1->shape + i) != *(array2->shape + i))
         {
-            Array *new_array = create_array(array1->dim, array1->shape);
-            for (i = 0; i < array1->size; i++)
-            {
-                (*(new_array->array + i)) = (*(array1->array + i)) * (*(array2->array + i));
-            }
-            return new_array;
+            return NULL;
         }
     }
-    return NULL;
+
+    Array *new_array = array_with_dim_shape(array1->dim, array1->shape);
+
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    for (i = 0; i < array1->size; i++)
+    {
+        (*(new_array->array + i)) = (*(array1->array + i)) * (*(array2->array + i));
+    }
+    return new_array;
+}
+
+int mul_array_inplace(Array *array1, Array *array2)
+{
+    if (array1 == NULL || array2 == NULL)
+    {
+        return -99;
+    }
+    else if (array1->dim != array2->dim)
+    {
+        return 0;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array1->dim; i++)
+    {
+        if (*(array1->shape + i) != *(array2->shape + i))
+        {
+            return 0;
+        }
+    }
+
+    for (i = 0; i < array1->size; i++)
+    {
+        (*(array1->array + i)) = (*(array1->array + i)) * (*(array2->array + i));
+    }
+    return 1;
 }
 
 Array *div_array(Array *array1, Array *array2)
 {
-    if (array1->dim == array2->dim)
+    if (array1 == NULL || array2 == NULL || array1->dim != array2->dim)
     {
-        register unsigned int i;
-        register unsigned short int flag = 1;
+        return NULL;
+    }
 
-        for (i = 0; i < array1->dim; i++)
-        {
-            if ((*(array1->shape + i)) != (*(array2->shape + i)))
-            {
-                flag = 0;
-                break;
-            }
-        }
+    register unsigned int i;
 
-        if (flag)
+    for (i = 0; i < array1->dim; i++)
+    {
+        if (*(array1->shape + i) != *(array2->shape + i))
         {
-            Array *new_array = create_array(array1->dim, array1->shape);
-            for (i = 0; i < array1->size; i++)
-            {
-                (*(new_array->array + i)) = (*(array1->array + i)) / (*(array2->array + i));
-            }
-            return new_array;
+            return NULL;
         }
     }
-    return NULL;
+
+    Array *new_array = array_with_dim_shape(array1->dim, array1->shape);
+
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    for (i = 0; i < array1->size; i++)
+    {
+        if (*(array2->array + i) == 0)
+        {
+            return NULL;
+        }
+
+        (*(new_array->array + i)) = (*(array1->array + i)) / (*(array2->array + i));
+    }
+    return new_array;
+}
+
+int div_array_inplace(Array *array1, Array *array2)
+{
+    if (array1 == NULL || array2 == NULL)
+    {
+        return -99;
+    }
+    else if (array1->dim != array2->dim)
+    {
+        return 0;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array1->dim; i++)
+    {
+        if (*(array1->shape + i) != *(array2->shape + i))
+        {
+            return 0;
+        }
+    }
+
+    if (isany(array2, 0))
+    {
+        return 0;
+    }
+
+    for (i = 0; i < array1->size; i++)
+    {
+        (*(array1->array + i)) = (*(array1->array + i)) / (*(array2->array + i));
+    }
+    return 1;
 }
 
 Array *array_range(int low, int high, int step)
 {
     register int i, j;
     unsigned int shape[1] = {(high - low + 1) / step};
-    Array *array = create_array(1, shape);
+    Array *array = array_with_dim_shape(1, shape);
+
+    if (array == NULL)
+    {
+        return NULL;
+    }
 
     for (i = low, j = 0; i < high; i += step, j++)
     {
@@ -454,22 +667,27 @@ Array *array_range(int low, int high, int step)
 Array *reshape(Array *array, int dim, int *shape)
 {
     register unsigned int i, size = 1;
-    Array *new_array = create_array(dim, shape);
+    Array *new_array = array_with_dim_shape(dim, shape);
+
+    if (array == NULL || new_array == NULL)
+    {
+        return NULL;
+    }
 
     for (i = 0; i < dim; i++)
     {
         size *= *(shape + i);
     }
 
-    for (i = 0; i < array->size; i++)
-    {
-        *(new_array->array + i) = *(array->array + i);
-    }
-
     if (size == array->size)
     {
         new_array->dim = dim;
         new_array->shape = shape;
+
+        for (i = 0; i < array->size; i++)
+        {
+            *(new_array->array + i) = *(array->array + i);
+        }
     }
     else
     {
@@ -479,14 +697,44 @@ Array *reshape(Array *array, int dim, int *shape)
     return new_array;
 }
 
+int reshape_inplace(Array *array, int dim, int *shape)
+{
+    register unsigned int i, size = 1;
+
+    if (array == NULL)
+    {
+        return -99;
+    }
+
+    for (i = 0; i < dim; i++)
+    {
+        size *= *(shape + i);
+    }
+
+    if (size == array->size)
+    {
+        array->dim = dim;
+        array->shape = shape;
+    }
+    else
+    {
+        return 0;
+    }
+
+    return 1;
+}
+
 void show_shape(Array *array)
 {
-    register unsigned int i;
-    for (i = 0; i < array->dim; i++)
+    if (array != NULL)
     {
-        printf("%d ", *(array->shape + i));
+        register unsigned int i;
+        for (i = 0; i < array->dim; i++)
+        {
+            printf("%d ", *(array->shape + i));
+        }
+        printf("\n");
     }
-    printf("\n");
 }
 
 long int get(Array *array, unsigned int *index)
@@ -506,8 +754,49 @@ long int get(Array *array, unsigned int *index)
     return *(array->array + address);
 }
 
-int set(Array *array, unsigned int *index, long int val)
+Array *set(Array *array, unsigned int *index, long int val)
 {
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    Array *new_array = array_with_dim_shape(array->dim, array->shape);
+    register unsigned int i;
+
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+    else
+    {
+        for (i = 0; i < array->size; i++)
+        {
+            *(new_array->array + i) = *(array->array + i);
+        }
+    }
+
+    unsigned int address = 0;
+    for (i = 0; i < array->dim; i++)
+    {
+        if (*(new_array->shape + i) <= *(index + i))
+        {
+            return NULL;
+        }
+        address += *(index + i) * pow(*(new_array->shape + i), new_array->dim - i - 1);
+    }
+
+    *(new_array->array + address) = val;
+    return new_array;
+}
+
+int set_inplace(Array *array, unsigned int *index, long int val)
+{
+    if (array == NULL)
+    {
+        return -99;
+    }
+
     unsigned int address = 0;
     register unsigned int i;
 
@@ -526,10 +815,15 @@ int set(Array *array, unsigned int *index, long int val)
 
 Array *ravel(Array *array)
 {
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
     unsigned int shape[] = {array->size};
     register unsigned int i;
 
-    Array *new_array = create_array(1, shape);
+    Array *new_array = array_with_dim_shape(1, shape);
 
     for (i = 0; i < array->size; i++)
     {
@@ -541,6 +835,11 @@ Array *ravel(Array *array)
 
 int isany(Array *array, long int val)
 {
+    if (array == NULL)
+    {
+        return -99;
+    }
+
     register unsigned int i = 0;
     for (i = 0; i < array->size; i++)
     {
@@ -554,6 +853,11 @@ int isany(Array *array, long int val)
 
 int isall(Array *array, long int val)
 {
+    if (array == NULL)
+    {
+        return -99;
+    }
+
     register unsigned int i = 0;
     for (i = 0; i < array->size; i++)
     {
@@ -567,6 +871,11 @@ int isall(Array *array, long int val)
 
 int isequal(Array *array1, Array *array2)
 {
+    if (array1 == NULL || array2 == NULL)
+    {
+        return -99;
+    }
+
     if (array1->size == array2->size)
     {
         register unsigned int i;
@@ -583,8 +892,13 @@ int isequal(Array *array1, Array *array2)
     return -1;
 }
 
-int isequal_dim(Array *array1, Array *array2)
+int isequal_shape(Array *array1, Array *array2)
 {
+    if (array1 == NULL || array2 == NULL)
+    {
+        return -99;
+    }
+
     if (array1->dim == array2->dim)
     {
         register unsigned int i;
@@ -601,10 +915,235 @@ int isequal_dim(Array *array1, Array *array2)
     return -1;
 }
 
-Array *combinations(long int *values, unsigned int size, int comb)
+int copy_array(Array *array1, Array *array2)
 {
-    Array *array = create_array(2, size);
+    if (array1 == NULL || array2 == NULL)
+    {
+        return -99;
+    }
+    if (array1->dim == array2->dim && isequal_shape(array1, array2))
+    {
+        register unsigned int i;
+        for (i = 0; i < array1->size; i++)
+        {
+            *(array2->array + i) = *(array1->array + i);
+        }
+        return 1;
+    }
+    return 0;
 }
+
+Array *create_copy(Array *array)
+{
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    Array *new_array = array_with_dim_shape(array->dim, array->shape);
+    if (copy_array(array, new_array) == 1)
+    {
+        return new_array;
+    }
+    return NULL;
+}
+
+Array *where_val_eq(Array *array, long int val)
+{
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    Array *new_array = array_with_dim_shape(array->dim, array->shape);
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array->size; i++)
+    {
+        *(new_array->array + i) = (*(array->array + i) == val) ? 1 : 0;
+    }
+
+    return new_array;
+}
+
+Array *where_val_ls(Array *array, long int val)
+{
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    Array *new_array = array_with_dim_shape(array->dim, array->shape);
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array->size; i++)
+    {
+        *(new_array->array + i) = (*(array->array + i) < val) ? 1 : 0;
+    }
+
+    return new_array;
+}
+
+Array *where_val_gt(Array *array, long int val)
+{
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    Array *new_array = array_with_dim_shape(array->dim, array->shape);
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array->size; i++)
+    {
+        *(new_array->array + i) = (*(array->array + i) > val) ? 1 : 0;
+    }
+
+    return new_array;
+}
+
+Array *where_val_le(Array *array, long int val)
+{
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    Array *new_array = array_with_dim_shape(array->dim, array->shape);
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array->size; i++)
+    {
+        *(new_array->array + i) = (*(array->array + i) <= val) ? 1 : 0;
+    }
+
+    return new_array;
+}
+
+Array *where_val_ge(Array *array, long int val)
+{
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    Array *new_array = array_with_dim_shape(array->dim, array->shape);
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array->size; i++)
+    {
+        *(new_array->array + i) = (*(array->array + i) >= val) ? 1 : 0;
+    }
+
+    return new_array;
+}
+
+Array *array_not(Array *array)
+{
+    Array *new_array = array_with_dim_shape(array->dim, array->shape);
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array->size; i++)
+    {
+        *(new_array->array + i) = (*(array->array + i)) ? 0 : 1;
+    }
+
+    return new_array;
+}
+
+int array_not_inplace(Array *array)
+{
+    if (array == NULL)
+    {
+        return -99;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array->size; i++)
+    {
+        *(array->array + i) = (*(array->array + i)) ? 0 : 1;
+    }
+
+    return 1;
+}
+
+Array *array_indexing(Array *array, Array *index_array)
+{
+    if (array == NULL || index_array == NULL)
+    {
+        return NULL;
+    }
+
+    if (array->dim == index_array->dim && isequal_shape(array, index_array))
+    {
+        register unsigned int i, size = 0;
+        for (i = 0; i < array->size; i++)
+        {
+            if (*(index_array->array + i))
+            {
+                size++;
+            }
+        }
+
+        Array *new_array = array_with_size(size);
+
+        for (i = 0; i < array->size; i++)
+        {
+            if (*(index_array->array + i))
+            {
+                *(new_array->array + i) = *(array->array + i);
+            }
+        }
+        return new_array;
+    }
+    return NULL;
+}
+
+double mean(Array *array)
+{
+    register unsigned int i;
+    register double total = 0, count = 0.0;
+
+    for (i = 0; i < array->size; i++)
+    {
+        count += 1.0;
+        total += (double)(*(array->array + i));
+    }
+
+    return (double)(total / count);
+}
+
+// Array *combinations(long int *values, unsigned int size, int comb)
+// {
+//     // if (array == NULL)
+//     // {
+//     //     return NULL;
+//     // }
+// }
 
 // Array *slice(Array *array, int *slice_indx)
 // {
