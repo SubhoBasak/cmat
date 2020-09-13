@@ -1123,6 +1123,52 @@ Array *array_indexing(Array *array, Array *index_array)
     return NULL;
 }
 
+Array *array_AND(Array *array1, Array *array2)
+{
+    if (array1->size == array2->size && array1->dim == array2->dim)
+    {
+        register int i;
+        Array *new_array = array_with_dim_shape(array1->dim, array1->shape);
+
+        if (new_array == NULL)
+        {
+            return NULL;
+        }
+
+        for (i = 0; i < array1->size; i++)
+        {
+            *(new_array->array + i) = *(array1->array + i) && *(array2->array);
+        }
+
+        return new_array;
+    }
+
+    return NULL;
+}
+
+Array *array_OR(Array *array1, Array *array2)
+{
+    if (array1->size == array2->size && array1->dim == array2->dim)
+    {
+        register int i;
+        Array *new_array = array_with_dim_shape(array1->dim, array1->shape);
+
+        if (new_array == NULL)
+        {
+            return NULL;
+        }
+
+        for (i = 0; i < array1->size; i++)
+        {
+            *(new_array->array + i) = *(array1->array + i) || *(array2->array);
+        }
+
+        return new_array;
+    }
+
+    return NULL;
+}
+
 double mean(Array *array)
 {
     register unsigned int i;
