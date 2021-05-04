@@ -28,20 +28,20 @@ typedef struct ArrStruct_float
 } ArrayFloat;
 
 bool isany(Array *array, long int val);
-bool isanyb(ArrayBool *array, bool val);
-bool isanyf(ArrayFloat *array, double val);
+bool isany_b(ArrayBool *array, bool val);
+bool isany_f(ArrayFloat *array, double val);
 
 bool isall(Array *array, long int val);
-bool isallb(ArrayBool *array, bool val);
-bool isallf(ArrayFloat *array, double val);
+bool isall_b(ArrayBool *array, bool val);
+bool isall_f(ArrayFloat *array, double val);
 
 bool isequal(Array *array1, Array *array2);
-bool isequalb(ArrayBool *array1, ArrayBool *array2);
-bool isequalf(ArrayFloat *array1, ArrayFloat *array2);
+bool isequal_b(ArrayBool *array1, ArrayBool *array2);
+bool isequal_f(ArrayFloat *array1, ArrayFloat *array2);
 
 bool isequal_shape(Array *array1, Array *array2);
-bool isequal_shapeb(ArrayBool *array1, ArrayBool *array2);
-bool isequal_shapef(ArrayFloat *array1, ArrayFloat *array2);
+bool isequal_shape_b(ArrayBool *array1, ArrayBool *array2);
+bool isequal_shape_f(ArrayFloat *array1, ArrayFloat *array2);
 
 Array *array_with_size(unsigned int size)
 {
@@ -56,7 +56,8 @@ Array *array_with_size(unsigned int size)
     {
         return NULL;
     }
-    unsigned int shape[1] = {1};
+    unsigned int *shape = (unsigned int *)malloc(sizeof(unsigned int));
+    *shape = size;
 
     array->dim = 1;
     array->shape = shape;
@@ -65,7 +66,7 @@ Array *array_with_size(unsigned int size)
     return array;
 }
 
-ArrayBool *array_with_sizeb(unsigned int size)
+ArrayBool *array_with_size_b(unsigned int size)
 {
     ArrayBool *array = (ArrayBool *)malloc(sizeof(ArrayBool));
     if (array == NULL)
@@ -73,12 +74,13 @@ ArrayBool *array_with_sizeb(unsigned int size)
         return NULL;
     }
 
-    array->array = (long int *)malloc(size * sizeof(long int));
+    array->array = (bool *)malloc(size * sizeof(bool));
     if (array->array == NULL)
     {
         return NULL;
     }
-    unsigned int shape[1] = {1};
+    unsigned int *shape = (unsigned int *)malloc(sizeof(unsigned int));
+    *shape = size;
 
     array->dim = 1;
     array->shape = shape;
@@ -87,7 +89,7 @@ ArrayBool *array_with_sizeb(unsigned int size)
     return array;
 }
 
-ArrayFloat *array_with_sizef(unsigned int size)
+ArrayFloat *array_with_size_f(unsigned int size)
 {
     ArrayFloat *array = (ArrayFloat *)malloc(sizeof(ArrayFloat));
     if (array == NULL)
@@ -95,12 +97,13 @@ ArrayFloat *array_with_sizef(unsigned int size)
         return NULL;
     }
 
-    array->array = (long int *)malloc(size * sizeof(long int));
+    array->array = (double *)malloc(size * sizeof(double));
     if (array->array == NULL)
     {
         return NULL;
     }
-    unsigned int shape[1] = {1};
+    unsigned int *shape = (unsigned int *)malloc(sizeof(unsigned int));
+    *shape = size;
 
     array->dim = 1;
     array->shape = shape;
@@ -137,7 +140,7 @@ Array *array_with_dim_shape(unsigned int dim, unsigned int *shape)
     return array;
 }
 
-ArrayBool *array_with_dim_shapeb(unsigned int dim, unsigned int *shape)
+ArrayBool *array_with_dim_shape_b(unsigned int dim, unsigned int *shape)
 {
     unsigned int size = 1;
     register unsigned int i;
@@ -152,7 +155,7 @@ ArrayBool *array_with_dim_shapeb(unsigned int dim, unsigned int *shape)
     {
         return NULL;
     }
-    array->array = (long int *)malloc(size * sizeof(long int));
+    array->array = (bool *)malloc(size * sizeof(bool));
     if (array->array == NULL)
     {
         return NULL;
@@ -165,7 +168,7 @@ ArrayBool *array_with_dim_shapeb(unsigned int dim, unsigned int *shape)
     return array;
 }
 
-ArrayFloat *array_with_dim_shapef(unsigned int dim, unsigned int *shape)
+ArrayFloat *array_with_dim_shape_f(unsigned int dim, unsigned int *shape)
 {
     unsigned int size = 1;
     register unsigned int i;
@@ -180,7 +183,7 @@ ArrayFloat *array_with_dim_shapef(unsigned int dim, unsigned int *shape)
     {
         return NULL;
     }
-    array->array = (long int *)malloc(size * sizeof(long int));
+    array->array = (double *)malloc(size * sizeof(double));
     if (array->array == NULL)
     {
         return NULL;
@@ -211,9 +214,9 @@ Array *zeros_with_size(unsigned int size)
     return array;
 }
 
-ArrayBool *zeros_with_sizeb(unsigned int size)
+ArrayBool *zeros_with_size_b(unsigned int size)
 {
-    ArrayBool *array = array_with_sizeb(size);
+    ArrayBool *array = array_with_size_b(size);
 
     if (array == NULL)
     {
@@ -229,9 +232,9 @@ ArrayBool *zeros_with_sizeb(unsigned int size)
     return array;
 }
 
-ArrayFloat *zeros_with_sizef(unsigned int size)
+ArrayFloat *zeros_with_size_f(unsigned int size)
 {
-    ArrayFloat *array = array_with_sizef(size);
+    ArrayFloat *array = array_with_size_f(size);
 
     if (array == NULL)
     {
@@ -266,9 +269,9 @@ Array *zeros_with_dim_shape(unsigned int dim, unsigned int *shape)
     return array;
 }
 
-ArrayBool *zeros_with_dim_shapeb(unsigned int dim, unsigned int *shape)
+ArrayBool *zeros_with_dim_shape_b(unsigned int dim, unsigned int *shape)
 {
-    ArrayBool *array = array_with_dim_shapeb(dim, shape);
+    ArrayBool *array = array_with_dim_shape_b(dim, shape);
 
     if (array == NULL)
     {
@@ -285,9 +288,9 @@ ArrayBool *zeros_with_dim_shapeb(unsigned int dim, unsigned int *shape)
     return array;
 }
 
-ArrayFloat *zeros_with_dim_shapef(unsigned int dim, unsigned int *shape)
+ArrayFloat *zeros_with_dim_shape_f(unsigned int dim, unsigned int *shape)
 {
-    ArrayFloat *array = array_with_dim_shapef(dim, shape);
+    ArrayFloat *array = array_with_dim_shape_f(dim, shape);
 
     if (array == NULL)
     {
@@ -322,9 +325,9 @@ Array *ones_with_size(unsigned int size)
     return array;
 }
 
-ArrayBool *ones_with_sizeb(unsigned int size)
+ArrayBool *ones_with_size_b(unsigned int size)
 {
-    ArrayBool *array = array_with_sizeb(size);
+    ArrayBool *array = array_with_size_b(size);
 
     if (array == NULL)
     {
@@ -340,9 +343,9 @@ ArrayBool *ones_with_sizeb(unsigned int size)
     return array;
 }
 
-ArrayFloat *ones_with_sizef(unsigned int size)
+ArrayFloat *ones_with_size_f(unsigned int size)
 {
-    ArrayFloat *array = array_with_sizef(size);
+    ArrayFloat *array = array_with_size_f(size);
 
     if (array == NULL)
     {
@@ -377,9 +380,9 @@ Array *ones_with_dim_shape(unsigned int dim, unsigned int *shape)
     return array;
 }
 
-ArrayBool *ones_with_dim_shapeb(unsigned int dim, unsigned int *shape)
+ArrayBool *ones_with_dim_shape_b(unsigned int dim, unsigned int *shape)
 {
-    ArrayBool *array = array_with_dim_shapeb(dim, shape);
+    ArrayBool *array = array_with_dim_shape_b(dim, shape);
 
     if (array == NULL)
     {
@@ -396,9 +399,9 @@ ArrayBool *ones_with_dim_shapeb(unsigned int dim, unsigned int *shape)
     return array;
 }
 
-ArrayFloat *ones_with_dim_shapef(unsigned int dim, unsigned int *shape)
+ArrayFloat *ones_with_dim_shape_f(unsigned int dim, unsigned int *shape)
 {
-    ArrayFloat *array = array_with_dim_shapef(dim, shape);
+    ArrayFloat *array = array_with_dim_shape_f(dim, shape);
 
     if (array == NULL)
     {
@@ -445,10 +448,10 @@ Array *identity_matrix(unsigned int size)
     return array;
 }
 
-ArrayBool *identity_matrixb(unsigned int size)
+ArrayBool *identity_matrix_b(unsigned int size)
 {
     unsigned int shape[] = {size, size};
-    ArrayBool *array = array_with_dim_shapeb(2, shape);
+    ArrayBool *array = array_with_dim_shape_b(2, shape);
 
     if (array == NULL)
     {
@@ -475,10 +478,10 @@ ArrayBool *identity_matrixb(unsigned int size)
     return array;
 }
 
-ArrayFloat *identity_matrixf(unsigned int size)
+ArrayFloat *identity_matrix_f(unsigned int size)
 {
     unsigned int shape[] = {size, size};
-    ArrayFloat *array = array_with_dim_shapef(2, shape);
+    ArrayFloat *array = array_with_dim_shape_f(2, shape);
 
     if (array == NULL)
     {
@@ -562,9 +565,9 @@ Array *random_with_size(unsigned int size)
     return array;
 }
 
-ArrayBool *random_with_sizeb(unsigned int size)
+ArrayBool *random_with_size_b(unsigned int size)
 {
-    ArrayBool *array = array_with_sizeb(size);
+    ArrayBool *array = array_with_size_b(size);
 
     if (array == NULL)
     {
@@ -581,9 +584,9 @@ ArrayBool *random_with_sizeb(unsigned int size)
     return array;
 }
 
-ArrayFloat *random_with_sizef(unsigned int size)
+ArrayFloat *random_with_size_f(unsigned int size)
 {
-    ArrayFloat *array = array_with_sizef(size);
+    ArrayFloat *array = array_with_size_f(size);
 
     if (array == NULL)
     {
@@ -627,7 +630,7 @@ void show_array(Array *array)
 
         for (i = 0; i < array->size; i++)
         {
-            printf("%d ", *(array->array + i));
+            printf("%ld ", *(array->array + i));
         }
         printf("\n");
     }
@@ -651,11 +654,11 @@ Array *add_value(Array *array, int val)
     return new_array;
 }
 
-int add_value_inplace(Array *array, int val)
+bool add_value_inplace(Array *array, int val)
 {
     if (array == NULL)
     {
-        return -99;
+        return false;
     }
 
     register unsigned int i;
@@ -665,7 +668,7 @@ int add_value_inplace(Array *array, int val)
         *(array->array + i) = *(array->array + i) + val;
     }
 
-    return 1;
+    return true;
 }
 
 Array *sub_value(Array *array, int val)
@@ -686,11 +689,11 @@ Array *sub_value(Array *array, int val)
     return new_array;
 }
 
-int sub_value_inplace(Array *array, int val)
+bool sub_value_inplace(Array *array, int val)
 {
     if (array == NULL)
     {
-        return -99;
+        return false;
     }
 
     register unsigned int i;
@@ -700,7 +703,7 @@ int sub_value_inplace(Array *array, int val)
         *(array->array + i) = *(array->array + i) - val;
     }
 
-    return 1;
+    return true;
 }
 
 Array *mul_value(Array *array, int val)
@@ -721,11 +724,11 @@ Array *mul_value(Array *array, int val)
     return new_array;
 }
 
-int mul_value_inplace(Array *array, int val)
+bool mul_value_inplace(Array *array, int val)
 {
     if (array == NULL)
     {
-        return -99;
+        return false;
     }
 
     register unsigned int i;
@@ -735,7 +738,7 @@ int mul_value_inplace(Array *array, int val)
         *(array->array + i) = *(array->array + i) * val;
     }
 
-    return 1;
+    return true;
 }
 
 Array *div_value(Array *array, int val)
@@ -756,15 +759,15 @@ Array *div_value(Array *array, int val)
     return new_array;
 }
 
-int div_value_inplace(Array *array, int val)
+bool div_value_inplace(Array *array, int val)
 {
     if (array == NULL)
     {
-        return -99;
+        return false;
     }
     else if (val == 0)
     {
-        return 0;
+        return false;
     }
 
     register unsigned int i;
@@ -774,7 +777,7 @@ int div_value_inplace(Array *array, int val)
         *(array->array + i) = *(array->array + i) / val;
     }
 
-    return 1;
+    return true;
 }
 
 Array *add_array(Array *array1, Array *array2)
@@ -808,15 +811,15 @@ Array *add_array(Array *array1, Array *array2)
     return new_array;
 }
 
-int add_array_inplace(Array *array1, Array *array2)
+bool add_array_inplace(Array *array1, Array *array2)
 {
     if (array1 == NULL || array2 == NULL)
     {
-        return -99;
+        return false;
     }
     else if (array1->dim != array2->dim)
     {
-        return 0;
+        return false;
     }
 
     register unsigned int i;
@@ -824,7 +827,7 @@ int add_array_inplace(Array *array1, Array *array2)
     {
         if (*(array1->shape + i) != *(array2->shape + i))
         {
-            return 0;
+            return false;
         }
     }
 
@@ -832,7 +835,7 @@ int add_array_inplace(Array *array1, Array *array2)
     {
         (*(array1->array + i)) = (*(array1->array + i)) + (*(array2->array + i));
     }
-    return 1;
+    return true;
 }
 
 Array *sub_array(Array *array1, Array *array2)
@@ -866,15 +869,15 @@ Array *sub_array(Array *array1, Array *array2)
     return new_array;
 }
 
-int sub_array_inplace(Array *array1, Array *array2)
+bool sub_array_inplace(Array *array1, Array *array2)
 {
     if (array1 == NULL || array2 == NULL)
     {
-        return -99;
+        return false;
     }
     else if (array1->dim != array2->dim)
     {
-        return 0;
+        return false;
     }
 
     register unsigned int i;
@@ -882,7 +885,7 @@ int sub_array_inplace(Array *array1, Array *array2)
     {
         if (*(array1->shape + i) != *(array2->shape + i))
         {
-            return 0;
+            return false;
         }
     }
 
@@ -890,7 +893,7 @@ int sub_array_inplace(Array *array1, Array *array2)
     {
         (*(array1->array + i)) = (*(array1->array + i)) - (*(array2->array + i));
     }
-    return 1;
+    return true;
 }
 
 Array *mul_array(Array *array1, Array *array2)
@@ -1164,11 +1167,11 @@ Array *set(Array *array, unsigned int *index, long int val)
     return new_array;
 }
 
-int set_inplace(Array *array, unsigned int *index, long int val)
+bool set_inplace(Array *array, unsigned int *index, long int val)
 {
     if (array == NULL)
     {
-        return -99;
+        return false;
     }
 
     unsigned int address = 0;
@@ -1178,13 +1181,13 @@ int set_inplace(Array *array, unsigned int *index, long int val)
     {
         if (*(array->shape + i) <= *(index + i))
         {
-            return 0;
+            return false;
         }
         address += *(index + i) * pow(*(array->shape + i), array->dim - i - 1);
     }
 
     *(array->array + address) = val;
-    return 1;
+    return true;
 }
 
 Array *ravel(Array *array)
@@ -1407,7 +1410,7 @@ bool isequal_shape(Array *array1, Array *array2)
     return false;
 }
 
-bool isequal_shapeb(ArrayBool *array1, ArrayBool *array2)
+bool isequal_shape_b(ArrayBool *array1, ArrayBool *array2)
 {
     if (array1 == NULL || array2 == NULL)
     {
@@ -1430,7 +1433,7 @@ bool isequal_shapeb(ArrayBool *array1, ArrayBool *array2)
     return false;
 }
 
-bool isequal_shapef(ArrayFloat *array1, ArrayFloat *array2)
+bool isequal_shape_f(ArrayFloat *array1, ArrayFloat *array2)
 {
     if (array1 == NULL || array2 == NULL)
     {
@@ -1471,6 +1474,42 @@ bool copy_array(Array *array1, Array *array2)
     return false;
 }
 
+bool copy_array_b(ArrayBool *array1, ArrayBool *array2)
+{
+    if (array1 == NULL || array2 == NULL)
+    {
+        return false;
+    }
+    if (array1->dim == array2->dim && isequal_shape_b(array1, array2))
+    {
+        register unsigned int i;
+        for (i = 0; i < array1->size; i++)
+        {
+            *(array2->array + i) = *(array1->array + i);
+        }
+        return true;
+    }
+    return false;
+}
+
+bool copy_array_f(ArrayFloat *array1, ArrayFloat *array2)
+{
+    if (array1 == NULL || array2 == NULL)
+    {
+        return false;
+    }
+    if (array1->dim == array2->dim && isequal_shape_f(array1, array2))
+    {
+        register unsigned int i;
+        for (i = 0; i < array1->size; i++)
+        {
+            *(array2->array + i) = *(array1->array + i);
+        }
+        return true;
+    }
+    return false;
+}
+
 Array *create_copy(Array *array)
 {
     if (array == NULL)
@@ -1493,8 +1532,8 @@ ArrayBool *create_copyb(ArrayBool *array)
         return NULL;
     }
 
-    ArrayBool *new_array = array_with_dim_shapeb(array->dim, array->shape);
-    if (copy_arrayb(array, new_array) == true)
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
+    if (copy_array_b(array, new_array) == true)
     {
         return new_array;
     }
@@ -1508,8 +1547,8 @@ ArrayFloat *create_copyf(ArrayFloat *array)
         return NULL;
     }
 
-    ArrayFloat *new_array = array_with_dim_shapef(array->dim, array->shape);
-    if (copy_arrayf(array, new_array) == true)
+    ArrayFloat *new_array = array_with_dim_shape_f(array->dim, array->shape);
+    if (copy_array_f(array, new_array) == true)
     {
         return new_array;
     }
@@ -1523,7 +1562,7 @@ ArrayBool *where_val_eq(Array *array, long int val)
         return NULL;
     }
 
-    ArrayBool *new_array = array_with_dim_shapeb(array->dim, array->shape);
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
     if (new_array == NULL)
     {
         return NULL;
@@ -1545,7 +1584,7 @@ ArrayBool *where_val_eqb(ArrayBool *array, bool val)
         return NULL;
     }
 
-    ArrayBool *new_array = array_with_dim_shapeb(array->dim, array->shape);
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
     if (new_array == NULL)
     {
         return NULL;
@@ -1567,7 +1606,7 @@ ArrayBool *where_val_eqf(ArrayFloat *array, double val)
         return NULL;
     }
 
-    ArrayBool *new_array = array_with_dim_shapeb(array->dim, array->shape);
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
     if (new_array == NULL)
     {
         return NULL;
@@ -1589,7 +1628,7 @@ ArrayBool *where_val_ls(Array *array, long int val)
         return NULL;
     }
 
-    ArrayBool *new_array = array_with_dim_shapeb(array->dim, array->shape);
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
     if (new_array == NULL)
     {
         return NULL;
@@ -1611,7 +1650,7 @@ ArrayBool *where_val_lsb(ArrayBool *array, bool val)
         return NULL;
     }
 
-    ArrayBool *new_array = array_with_dim_shapeb(array->dim, array->shape);
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
     if (new_array == NULL)
     {
         return NULL;
@@ -1633,7 +1672,7 @@ ArrayBool *where_val_lsf(ArrayFloat *array, double val)
         return NULL;
     }
 
-    ArrayBool *new_array = array_with_dim_shapeb(array->dim, array->shape);
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
     if (new_array == NULL)
     {
         return NULL;
@@ -1655,7 +1694,7 @@ ArrayBool *where_val_gt(Array *array, long int val)
         return NULL;
     }
 
-    ArrayBool *new_array = array_with_dim_shapeb(array->dim, array->shape);
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
     if (new_array == NULL)
     {
         return NULL;
@@ -1677,7 +1716,7 @@ ArrayBool *where_val_gtb(ArrayBool *array, bool val)
         return NULL;
     }
 
-    ArrayBool *new_array = array_with_dim_shapeb(array->dim, array->shape);
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
     if (new_array == NULL)
     {
         return NULL;
@@ -1699,7 +1738,7 @@ ArrayBool *where_val_gtf(ArrayFloat *array, float val)
         return NULL;
     }
 
-    ArrayBool *new_array = array_with_dim_shapeb(array->dim, array->shape);
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
     if (new_array == NULL)
     {
         return NULL;
@@ -1714,14 +1753,14 @@ ArrayBool *where_val_gtf(ArrayFloat *array, float val)
     return new_array;
 }
 
-Array *where_val_le(Array *array, long int val)
+ArrayBool *where_val_le(Array *array, long int val)
 {
     if (array == NULL)
     {
         return NULL;
     }
 
-    Array *new_array = array_with_dim_shape(array->dim, array->shape);
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
     if (new_array == NULL)
     {
         return NULL;
@@ -1730,20 +1769,20 @@ Array *where_val_le(Array *array, long int val)
     register unsigned int i;
     for (i = 0; i < array->size; i++)
     {
-        *(new_array->array + i) = (*(array->array + i) <= val) ? 1 : 0;
+        *(new_array->array + i) = (*(array->array + i) <= val) ? true : false;
     }
 
     return new_array;
 }
 
-Array *where_val_ge(Array *array, long int val)
+ArrayBool *where_val_leb(ArrayBool *array, bool val)
 {
     if (array == NULL)
     {
         return NULL;
     }
 
-    Array *new_array = array_with_dim_shape(array->dim, array->shape);
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
     if (new_array == NULL)
     {
         return NULL;
@@ -1752,7 +1791,95 @@ Array *where_val_ge(Array *array, long int val)
     register unsigned int i;
     for (i = 0; i < array->size; i++)
     {
-        *(new_array->array + i) = (*(array->array + i) >= val) ? 1 : 0;
+        *(new_array->array + i) = (*(array->array + i) <= val) ? true : false;
+    }
+
+    return new_array;
+}
+
+ArrayBool *where_val_lef(ArrayFloat *array, double val)
+{
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array->size; i++)
+    {
+        *(new_array->array + i) = (*(array->array + i) <= val) ? true : false;
+    }
+
+    return new_array;
+}
+
+ArrayBool *where_val_ge(Array *array, long int val)
+{
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array->size; i++)
+    {
+        *(new_array->array + i) = (*(array->array + i) >= val) ? true : false;
+    }
+
+    return new_array;
+}
+
+ArrayBool *where_val_geb(ArrayBool *array, bool val)
+{
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array->size; i++)
+    {
+        *(new_array->array + i) = (*(array->array + i) >= val) ? true : false;
+    }
+
+    return new_array;
+}
+
+ArrayBool *where_val_gef(ArrayFloat *array, double val)
+{
+    if (array == NULL)
+    {
+        return NULL;
+    }
+
+    ArrayBool *new_array = array_with_dim_shape_b(array->dim, array->shape);
+    if (new_array == NULL)
+    {
+        return NULL;
+    }
+
+    register unsigned int i;
+    for (i = 0; i < array->size; i++)
+    {
+        *(new_array->array + i) = (*(array->array + i) >= val) ? true : false;
     }
 
     return new_array;
@@ -1882,43 +2009,3 @@ double mean(Array *array)
 
     return (double)(total / count);
 }
-
-// Array *mat_mul(Array *array1, Array *array2)
-// {
-//     if(isequal_shape(array1, array2) == true && array1->dim == array2->dim && array1->dim >= 2){
-//         if(*(array1))
-//     }
-// }
-
-// Array *combinations(long int *values, unsigned int size, int comb)
-// {
-//     // if (array == NULL)
-//     // {
-//     //     return NULL;
-//     // }
-// }
-
-// Array *slice(Array *array, int *slice_indx)
-// {
-//     if (array->dim != sizeof(slice_indx) / sizeof(slice_indx[0]))
-//     {
-//         return NULL;
-//     }
-//     register unsigned int i;
-//     register int size;
-//     for (i = 0; i < array->dim; i++)
-//     {
-//         if (*(slice_indx + i) < 0)
-//         {
-//             size++;
-//         }
-//     }
-//     unsigned int *shape = (unsigned int *)malloc(size * sizeof(unsigned int));
-//     for (i = 0; i < array->dim; i++)
-//     {
-//         if (*(slice_indx + i) < 0)
-//         {
-//             *(shape + i) = *(array->shape + i);
-//         }
-//     }
-// }
